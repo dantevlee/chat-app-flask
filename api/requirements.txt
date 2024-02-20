@@ -1,1 +1,7 @@
 flask
+flask_socketio
+Flask-Smorest
+Flask-SQLAlchemy
+Flask_Cors
+passlib
+marshmallow
