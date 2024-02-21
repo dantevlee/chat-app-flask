@@ -1,3 +1,5 @@
+import os
+import jwt
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from flask_jwt_extended import (
@@ -49,12 +51,18 @@ class UserLogin(MethodView):
         UserModel.username == user_login_data['username']
       ).first()
       if (user is None):
-        return {"message":"User does not exist."}
+        return {"message": "User does not exist."}
       
       isMatch = user and pbkdf2_sha256.verify(user_login_data['password'], user.password)
       
       if(isMatch == False):
         abort(401, message="Invalid credentials" )
+      
+      json_payload = {"id": user.id, "username": user.username, "password": user.password}
+      
+      if(isMatch):
+        token =  jwt.encode(json_payload, os.getenv('TOKEN_SECRET'), algorithm='HS256') 
+        return {"username": user.username, "access_token": token }, 200
         
     except SQLAlchemyError:
       abort(500, message="An error occurred while logging into the application. Please try agin later.")
