@@ -1,4 +1,5 @@
 from database.db import db 
+from datetime import datetime
 
 class UserModel(db.Model):
   __tablename__= "users"
@@ -8,3 +9,4 @@ class UserModel(db.Model):
   lastname = db.Column(db.String(225), nullable=False)
   username = db.Column(db.String(225), nullable=False, unique=True)
   password = db.Column(db.String(256), nullable=False)
+  lastactiveat = db.Column(db.DateTime, default=datetime.utcnow)

@@ -1,11 +1,19 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    get_jwt_identity,
+    get_jwt,
+    jwt_required,
+)
 from passlib.hash import pbkdf2_sha256
 from sqlalchemy.exc import SQLAlchemyError
 
 from database.db import db
 from models import UserModel
-from database.schemas import UserSchema
+from database.schemas import UserSchema, UserLoginSchema
+
 
 blp = Blueprint("Users", "users", description="Operations on users.")
 
@@ -30,4 +38,28 @@ class UserRegistartion(MethodView):
       abort(500, message="An error occurred registering a new user.")
     
     return {"message": "User created successfully."}, 201
+  
+@blp.route("/login")
+class UserLogin(MethodView):
+  @blp.arguments(UserLoginSchema)
+  def post(self, user_login_data):
     
+    try:
+      user = UserModel.query.filter(
+        UserModel.username == user_login_data['username']
+      ).first()
+      if (user is None):
+        return {"message":"User does not exist."}
+      
+      isMatch = user and pbkdf2_sha256.verify(user_login_data['password'], user.password)
+      
+      if(isMatch == False):
+        abort(401, message="Invalid credentials" )
+        
+    except SQLAlchemyError:
+      abort(500, message="An error occurred while logging into the application. Please try agin later.")
+      
+      
+
+      
+      

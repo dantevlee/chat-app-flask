@@ -3,5 +3,9 @@ flask_socketio
 Flask-Smorest
 Flask-SQLAlchemy
 Flask_Cors
+Flask-Migrate
+flask_jwt_extended
 passlib
 marshmallow
+psycopg2
+datetime
