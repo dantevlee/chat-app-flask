@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from database.db import db
 from events.sockets import socketio
 from resources.users import blp as UsersBlueprint
-
+from resources.messages import blp as MessagesBlueprint
 
 def create_app(db_url=None):
   app = Flask(__name__)
@@ -32,9 +32,11 @@ def create_app(db_url=None):
     app.run()
   
   with app.app_context():
+    db.drop_all()
     db.create_all()
   
   api.register_blueprint(UsersBlueprint)
+  api.register_blueprint(MessagesBlueprint)
   socketio.init_app(app)
   
   return app

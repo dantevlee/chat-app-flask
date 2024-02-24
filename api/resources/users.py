@@ -9,11 +9,42 @@ from datetime import datetime, timedelta
 from database.db import db
 from events.sockets import socketio
 from models import UserModel
-from database.schemas import UserSchema, UserLoginSchema, UserLogoutSchema
+from database.schemas import UserSchema, UserLoginSchema, UserNameSchema
 
 blp = Blueprint("Users", "users", description="Operations on users.")
 active_users = []
 active_sessions = {}
+
+@socketio.on('connect')
+def connect():
+    if request.sid not in active_sessions:
+        active_sessions[request.sid] = None
+
+@socketio.on('login')
+def handle_login(username):
+    if username not in active_users:
+        active_users.append(username)
+        active_sessions[request.sid] = username
+
+    socketio.emit('active_users', active_users, broadcast=True)
+
+@socketio.on('disconnect')
+def disconnect():
+    if request.sid in active_sessions:
+        disconnected_user = active_sessions[request.sid]
+        del active_sessions[request.sid]
+
+        if disconnected_user in active_users:
+            active_users.remove(disconnected_user)
+
+    socketio.emit('active_users', active_users, broadcast=True)
+
+@socketio.on('ping')
+def ping(username):
+    if username not in active_users:
+        active_users.append(username)
+        active_sessions[request.sid] = username
+        socketio.emit('active_users', active_users, broadcast=True)
 
 @blp.route("/register")
 class UserRegistartion(MethodView):
@@ -39,10 +70,8 @@ class UserRegistartion(MethodView):
   
 @blp.route("/login")
 class UserLogin(MethodView):
-  
   @blp.arguments(UserLoginSchema)
   def post(self, user_login_data):
-    
     try:
       user = UserModel.query.filter(
         UserModel.username == user_login_data['username']
@@ -55,44 +84,22 @@ class UserLogin(MethodView):
       if(not isMatch):
         abort(401, message="Invalid credentials" )
       
-      json_payload = {"id": user.id, "username": user.username, "password": user.password}
-      
       if(isMatch):
-  
+        json_payload = {"id": user.id, "username": user.username, "password": user.password}
         user.lastactiveat = datetime.utcnow()
         db.session.commit()
         
         token =  jwt.encode(json_payload, os.getenv('TOKEN_SECRET'), algorithm='HS256') 
-
+        
         return {"username": user.username, "access_token": token }, 200
         
     except SQLAlchemyError:
       abort(500, message="An error occurred while logging into the application. Please try agin later.")
   
-  @socketio.on('connect')
-  def connect():
-    print('connected!')
-    if request.sid not in active_sessions:
-        active_sessions[request.sid] = None
-  
-  @socketio.on('login')
-  def handlelogin(online_users):
-    
-    twelve_hours_ago = datetime.utcnow() - timedelta(hours=12)
-    online_users = UserModel.query.filter(UserModel.lastactiveat > twelve_hours_ago).all()
-      
-    if online_users not in active_users:
-      active_users.append(online_users)
-      active_sessions[request.sid] = online_users
-      
-    socketio.emit('login', active_users, broadcast=True)
-    
 @blp.route("/logout")
 class UserLogout(MethodView):
-  
-  @blp.arguments(UserLogoutSchema)
+  @blp.arguments(UserNameSchema)
   def post(self, user_data):
-    
     try:
      user = UserModel.query.filter(
        UserModel.username == user_data['username']
@@ -105,8 +112,16 @@ class UserLogout(MethodView):
     
     except SQLAlchemyError:
       abort(500, message="An error occurred while trying to log out. Please try again later.")
-    
-       
+  
 
-      
-      
+@blp.route("/users/active")
+class ActiveUsers(MethodView):
+  @blp.response(200, UserNameSchema(many=True))
+  def get(self):
+    return active_users
+
+@blp.route("/users/all")
+class AllUsers(MethodView):
+  @blp.response(200, UserNameSchema(many=True))
+  def get(self):
+    return UserModel.query.all()    
