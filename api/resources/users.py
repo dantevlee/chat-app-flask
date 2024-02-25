@@ -8,12 +8,11 @@ from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime, timedelta
 from database.db import db
 from events.sockets import socketio
+from events.active_sessions import active_sessions, active_users
 from models import UserModel
 from database.schemas import UserSchema, UserLoginSchema, UserNameSchema
 
 blp = Blueprint("Users", "users", description="Operations on users.")
-active_users = []
-active_sessions = {}
 
 @socketio.on('connect')
 def connect():
@@ -91,7 +90,7 @@ class UserLogin(MethodView):
         
         token =  jwt.encode(json_payload, os.getenv('TOKEN_SECRET'), algorithm='HS256') 
         
-        return {"username": user.username, "access_token": token }, 200
+        return {"username": user.username, "access_token": token}, 200
         
     except SQLAlchemyError:
       abort(500, message="An error occurred while logging into the application. Please try agin later.")

@@ -17,3 +17,9 @@ CREATE TABLE messages(
      created_at TIMESTAMP NOT NULL,
      user_id int REFERENCES users(id) NOT NULL
     );
+
+CREATE TABLE channels(
+     id SERIAL PRIMARY KEY,
+     channel VARCHAR(225) NOT NULL,
+     created_at TIMESTAMP NOT NULL,
+)

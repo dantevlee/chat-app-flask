@@ -16,8 +16,21 @@ class UserNameSchema(Schema):
    id = fields.Int(dump_only=True)
    username = fields.Str(required=True)
 
-class MessageSchema(Schema):
+class ChannelSchema(Schema):
+   id = fields.Int(dump_only=True)
+   channel = fields.String(required=True)
+   createdat = fields.DateTime(dump_only=True)
+
+class SendMessageSchema(Schema):
    id = fields.Int(dump_only=True)
    text = fields.String(required=True)
-   createdat = fields.DateTime(dump_only=True)
+   createdat = fields.Date(dump_only=True)
    userid = fields.Int(required=True)
+   channelid = fields.Int(required=True)
+
+class MessageSchema(Schema):
+   id = fields.Int(dump_only=True)
+   createdat = fields.Date(dump_only=True)
+   user = fields.Str(dump_only=True)
+   channel = fields.Str(dump_only=True)
+   text = fields.String(required=True)

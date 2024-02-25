@@ -9,6 +9,7 @@ from database.db import db
 from events.sockets import socketio
 from resources.users import blp as UsersBlueprint
 from resources.messages import blp as MessagesBlueprint
+from resources.channels import blp as ChannelsBlueprint
 
 def create_app(db_url=None):
   app = Flask(__name__)
@@ -28,15 +29,18 @@ def create_app(db_url=None):
   
   db.init_app(app)
   api = Api(app)
+  swagger_ui_headers = {
+      "X-My-Custom-Header": "My Custom Value",
+  }
   if __name__ == '__main__':
     app.run()
   
   with app.app_context():
-    db.drop_all()
     db.create_all()
   
   api.register_blueprint(UsersBlueprint)
-  api.register_blueprint(MessagesBlueprint)
+  api.register_blueprint(MessagesBlueprint, specs_kwargs={'swagger_ui_headers': swagger_ui_headers})
+  api.register_blueprint(ChannelsBlueprint)
   socketio.init_app(app)
   
   return app
