@@ -1,4 +1,4 @@
-from flask_socketio import SocketIO, Namespace
+from flask_socketio import SocketIO, Namespace, emit
 
 class MyNamespace(Namespace):
     def on_connect(self):

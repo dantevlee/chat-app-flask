@@ -1,6 +1,6 @@
 import os
 import jwt
-from flask import jsonify, request
+from flask import current_app as app, request, abort, jsonify
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from sqlalchemy import create_engine, text
@@ -30,7 +30,8 @@ class SendMessage(MethodView):
       message = MessageModel(**message_data)
       db.session.add(message)
       db.session.commit()
-       
+      with app.app_context():
+        app.extensions['socketio'].emit('receive-message',  {"username": message.user, "text": message.text}, namespace='/mynamespace')
     except SQLAlchemyError:
       abort(500, message="An error occurred sending a message.")
 
@@ -47,7 +48,7 @@ class SendMessage(MethodView):
             messages.text
         FROM messages
         INNER JOIN channels ON messages.channelid = channels.id
-        INNER JOIN users ON messages.userid = users.id
+        INNER JOIN users ON messages.user = users.username
         ORDER BY messages.createdat;
     ''')
     engine = create_engine(os.getenv('DATABASE_URL'))

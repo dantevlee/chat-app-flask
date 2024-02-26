@@ -10,4 +10,4 @@ class UserModel(db.Model):
   username = db.Column(db.String(225), nullable=False, unique=True)
   password = db.Column(db.String(256), nullable=False)
   lastactiveat = db.Column(db.DateTime)
-  messages = db.relationship("MessageModel", back_populates="user")
+  messages = db.relationship("MessageModel", back_populates="users")

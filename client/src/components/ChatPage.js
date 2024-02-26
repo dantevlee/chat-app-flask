@@ -18,18 +18,19 @@ const ChatPage = ({ setIsLoggedIn }) => {
 
   const socket = io.connect('http://localhost:5000/mynamespace')
 
-  useEffect(() => {}, [messages]);
-
   useEffect(() => {
-    socket.on("connect", () => {
+    socket.on("connected", () => {
       console.log("WebSocket connected")
+    });
+
+    socket.on("receive-message", (channelMessage) => {console.log("recieved")
+      setChannelMessages((prevMessages) => [...prevMessages, channelMessage]);
     });
 
     getUsers();
     getMessagesAndChannels();
-
-  
-  }, [messages]);
+ 
+  }, [channelMessages, socket]);
 
   const toggleChannel = (channelName) => {
     setSelectedChannel(channelName);
@@ -101,7 +102,7 @@ const ChatPage = ({ setIsLoggedIn }) => {
 
     const message = {
       text,
-      userid: decoded.id,
+      user: decoded.username,
       channelid: currentChannel.id
     };
 
@@ -115,7 +116,7 @@ const ChatPage = ({ setIsLoggedIn }) => {
     } catch (error) {
       console.error(error);
     }
-
+    socket.emit("chatMessage", message);
     textInputRef.current.value = "";
   };
 
