@@ -2,7 +2,6 @@ import os
 from flask import Flask
 from flask_smorest import Api
 from flask_cors import CORS
-from flask_migrate import Migrate
 from dotenv import load_dotenv
 
 from database.db import db
@@ -14,7 +13,8 @@ from resources.channels import blp as ChannelsBlueprint
 def create_app(db_url=None):
   app = Flask(__name__)
   load_dotenv()
-  CORS(app, resources={r'/*': {'origins': '*'}})
+  CORS(app, resources={r"/*": {"origins": "*"}})
+  socketio.init_app(app, cors_allowed_origins="*")
   
   app.config["API_TITLE"] = "Chat App REST API"
   app.config["API_VERSION"] = "v1"
@@ -29,18 +29,16 @@ def create_app(db_url=None):
   
   db.init_app(app)
   api = Api(app)
-  swagger_ui_headers = {
-      "X-My-Custom-Header": "My Custom Value",
-  }
   if __name__ == '__main__':
     app.run()
+    
   
   with app.app_context():
     db.create_all()
   
   api.register_blueprint(UsersBlueprint)
-  api.register_blueprint(MessagesBlueprint, specs_kwargs={'swagger_ui_headers': swagger_ui_headers})
+  api.register_blueprint(MessagesBlueprint)
   api.register_blueprint(ChannelsBlueprint)
-  socketio.init_app(app)
-  
+
   return app
+

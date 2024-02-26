@@ -19,18 +19,8 @@ const ChatPage = ({ setIsLoggedIn }) => {
   const socket = io();
 
   useEffect(() => {
-    socket.on("connect", () => {});
-
-    socket.on("receive-message", (message) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
-    });
-
-    socket.on("login", ({ activeUsers }) => {
-      setUsers(activeUsers);
-    });
-
-    socket.on("logout", ({ activeUsers }) => {
-      setUsers(activeUsers);
+    socket.on("connect", () => {
+      console.log("WebSocket connected")
     });
 
     getUsers();
@@ -95,6 +85,7 @@ const ChatPage = ({ setIsLoggedIn }) => {
 
       localStorage.removeItem("token");
       setIsLoggedIn(false);
+      socket.emit('logout');
     } catch (err) {
       alert(err.message);
     }

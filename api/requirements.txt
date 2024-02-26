@@ -1,5 +1,5 @@
 flask
-flask_socketio
+Flask-SocketIO==5.3.1
 Flask-Smorest
 Flask-SQLAlchemy
 Flask_Cors
