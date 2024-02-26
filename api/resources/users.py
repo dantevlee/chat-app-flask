@@ -8,7 +8,6 @@ from passlib.hash import pbkdf2_sha256
 from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime
 from database.db import db
-from events.sockets import socketio
 from models import UserModel
 from database.schemas import UserSchema, UserLoginSchema, UserNameSchema
 

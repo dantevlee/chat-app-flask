@@ -16,7 +16,9 @@ const ChatPage = ({ setIsLoggedIn }) => {
   const [channelMessages, setChannelMessages] = useState([]);
   const [showInput, setShowInput] = useState(false)
 
-  const socket = io();
+  const socket = io.connect('http://localhost:5000/mynamespace')
+
+  useEffect(() => {}, [messages]);
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -26,9 +28,7 @@ const ChatPage = ({ setIsLoggedIn }) => {
     getUsers();
     getMessagesAndChannels();
 
-    return () => {
-      socket.off();
-    };
+  
   }, [messages]);
 
   const toggleChannel = (channelName) => {
@@ -85,7 +85,6 @@ const ChatPage = ({ setIsLoggedIn }) => {
 
       localStorage.removeItem("token");
       setIsLoggedIn(false);
-      socket.emit('logout');
     } catch (err) {
       alert(err.message);
     }
@@ -117,7 +116,6 @@ const ChatPage = ({ setIsLoggedIn }) => {
       console.error(error);
     }
 
-    socket.emit("chatMessage", message);
     textInputRef.current.value = "";
   };
 
