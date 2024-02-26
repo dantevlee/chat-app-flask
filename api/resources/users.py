@@ -13,6 +13,7 @@ from models import UserModel
 from database.schemas import UserSchema, UserLoginSchema, UserNameSchema
 
 blp = Blueprint("Users", "users", description="Operations on users.")
+online_user = []
 
 @socketio.on('connect')
 def connect():
@@ -72,8 +73,9 @@ class UserLogin(MethodView):
   @blp.arguments(UserLoginSchema)
   def post(self, user_login_data):
     try:
+      input_username = user_login_data['username'].casefold()
       user = UserModel.query.filter(
-        UserModel.username == user_login_data['username']
+        UserModel.username == input_username
       ).first()
       if (user is None):
         return {"message": "User does not exist."}
@@ -89,7 +91,6 @@ class UserLogin(MethodView):
         db.session.commit()
         
         token =  jwt.encode(json_payload, os.getenv('TOKEN_SECRET'), algorithm='HS256') 
-        
         return {"username": user.username, "access_token": token}, 200
         
     except SQLAlchemyError:
@@ -100,6 +101,7 @@ class UserLogout(MethodView):
   @blp.arguments(UserNameSchema)
   def post(self, user_data):
     try:
+      
      user = UserModel.query.filter(
        UserModel.username == user_data['username']
      ).first() 

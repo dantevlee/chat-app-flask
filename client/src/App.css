@@ -1,12 +1,12 @@
 .card-bordered {
-  border: 1px solid #ebebeb;
+  border: 3px solid #ebebeb;
   border-radius: 10px;
   margin-bottom: 20px;
   background-color: #fff;
 }
 
 .card {
-  border: 0;
+  border: 5;
 }
 
 .padding {
@@ -30,6 +30,7 @@ body {
 .card-header .card-title {
   padding: 0;
   border: none;
+  height: 100px;
 }
 
 h4.card-title {
@@ -74,8 +75,8 @@ textarea {
 
 .users {
   justify-content: center;
-  
 }
+
 
 .bubble {
   background-color: #007bff;
@@ -91,4 +92,8 @@ textarea {
 
 .bubble:hover {
   background-color: #0056b3;
+}
+
+.active-channel {
+  font-weight: bolder;
 }

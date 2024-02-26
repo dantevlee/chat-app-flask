@@ -1,9 +1,20 @@
 import React from "react";
 
-const Users = ({ users }) => {
-  const userName = users.map((user) => {
-    return <p key={user.id}>{user.username}</p>;
-  });
+const Channels = ({ channels, toggleChannel, selectedChannel }) => {
+  const channelList = channels.map((c) => (
+    <p
+      key={c.id}
+      className={selectedChannel === c.channel ? "active-channel" : ""}
+      onClick={() => {
+        toggleChannel(c.channel);
+      }}
+      style={{
+        cursor: "pointer",
+      }}
+    >
+      #{c.channel}
+    </p>
+  ));
 
   return (
     <React.Fragment>
@@ -11,9 +22,10 @@ const Users = ({ users }) => {
         <div className="card card-bordered">
           <div className="card-header">
             <h4 className="card-title">
-              <strong>Online Now</strong>
+              <strong>Channels</strong>
             </h4>
           </div>
+
           <div
             className="ps-container ps-theme-default ps-active-y"
             id="chat-content"
@@ -24,7 +36,7 @@ const Users = ({ users }) => {
             }}
           >
             <div>
-              <div className="users">{userName}</div>
+              <div className="channels">{channelList}</div>
             </div>
           </div>
         </div>
@@ -33,4 +45,4 @@ const Users = ({ users }) => {
   );
 };
 
-export default Users;
+export default Channels;
