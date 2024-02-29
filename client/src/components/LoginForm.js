@@ -24,41 +24,31 @@ const LoginForm = ({ setIsLoggedIn }) => {
       password: passwordInputRef.current.value,
     };
 
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/login",
-        loginBody
-      );
+   try {
+  const response = await axios.post("http://localhost:5000/login", loginBody);
 
-      if (response.status === 401 ) {
-        setError("Password is incorrect.");
-        setIsInitialLoad(false);
-        return;
-      }
+  if (response.data.message === "Invalid credentials") {
+    setError("Invalid credentials. Please check your username and password.");
+    setIsInitialLoad(true);
+    return;
+  }
 
-      if (response.status === 404 ) {
-        setError("User not found.");
-        setIsInitialLoad(false);
-        return;
-      }
+  if (response.data.message === "User does not exist.") {
+    setError("User not found. Please check your username.");
+    setIsInitialLoad(true);
+    return;
+  }
 
-      const user = response.data.access_token;
+  if (response.status === 200) {
+    localStorage.setItem("token", response.data.access_token);
+    localStorage.setItem("username", response.data.username)
+    setIsInitialLoad(true);
+    setIsLoggedIn(true)
+  }
 
-      localStorage.setItem("token", user);
-
-      localStorage.setItem("username", response.data.username);
-
-      if (response.status === 200) {
-        setIsLoggedIn(true);
-        setIsInitialLoad(false);
-      }
-
-      if (visitCount > 0) {
-        setVisitCount(0);
-      }
-    } catch (err) {
-      setError("An error occurred please try again later.");
-    }
+} catch (err) {
+  setError("An error occurred. Please try again later.");
+}
   };
 
   const removeNotification = () => {

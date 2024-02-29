@@ -16,21 +16,42 @@ const ChatPage = ({ setIsLoggedIn }) => {
   const [channelMessages, setChannelMessages] = useState([]);
   const [showInput, setShowInput] = useState(false)
 
-  const socket = io.connect('http://localhost:5000/mynamespace')
+  const socket = io.connect('http://localhost:5000/');
 
   useEffect(() => {
-    socket.on("connected", () => {
-      console.log("WebSocket connected")
+    socket.on("connect", () => {
+      console.log('connected')
     });
 
-    socket.on("receive-message", (channelMessage) => {console.log("recieved")
-      setChannelMessages((prevMessages) => [...prevMessages, channelMessage]);
+    socket.on("receive-message", (message) => {
+      console.log('received')
+      setMessages((prevMessages) => [...prevMessages, message]);
     });
+
+    socket.on("login", ({ activeUsers }) => {
+      console.log('login')
+      setUsers(activeUsers);
+    });
+
+    socket.on("logout", ({ activeUsers }) => {
+      console.log('logout')
+      setUsers(activeUsers);
+    });
+
 
     getUsers();
     getMessagesAndChannels();
+
+    return () => {
+      socket.off();
+    };
  
-  }, [channelMessages, socket]);
+  }, [messages, socket]);
+
+  useEffect(() => {
+    const filteredMessages = messages.filter((m) => m.channel === selectedChannel);
+    setChannelMessages(filteredMessages);
+  }, [selectedChannel, messages]);
 
   const toggleChannel = (channelName) => {
     setSelectedChannel(channelName);
@@ -116,7 +137,7 @@ const ChatPage = ({ setIsLoggedIn }) => {
     } catch (error) {
       console.error(error);
     }
-    socket.emit("chatMessage", message);
+    socket.emit("chatMessage", {message: message.text, user: message.username});
     textInputRef.current.value = "";
   };
 

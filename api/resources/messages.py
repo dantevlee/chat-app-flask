@@ -1,8 +1,9 @@
 import os
 import jwt
-from flask import current_app as app, request, abort, jsonify
+from flask import Flask, request, abort, jsonify
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
+from flask_socketio import SocketIO
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker
@@ -12,8 +13,17 @@ from database.schemas import SendMessageSchema, MessageSchema
 
 blp = Blueprint("Messages", "messages", description="Operations on messages.")
 
+app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins='*')
+
+
 @blp.route("/message")
 class SendMessage(MethodView):
+  
+  @socketio.on('receive-message')
+  def handle_message_submit(self, message):
+    print('receive-message connected')
+    socketio.emit('receive-message', message)
   
   @blp.arguments(SendMessageSchema)
   @blp.response(201, SendMessageSchema)
@@ -30,8 +40,9 @@ class SendMessage(MethodView):
       message = MessageModel(**message_data)
       db.session.add(message)
       db.session.commit()
-      with app.app_context():
-        app.extensions['socketio'].emit('receive-message',  {"username": message.user, "text": message.text}, namespace='/mynamespace')
+      
+      self.handle_message_submit(message)
+        
     except SQLAlchemyError:
       abort(500, message="An error occurred sending a message.")
 
@@ -69,4 +80,6 @@ class SendMessage(MethodView):
 
     session.close()
     return jsonify(result)
+  
+  
     

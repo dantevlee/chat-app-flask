@@ -1,11 +1,13 @@
 flask
-Flask-SocketIO==5.3.1
+Flask-SocketIO
 Flask-Smorest
 Flask-SQLAlchemy
 Flask_Cors
 Flask-Migrate
 flask_jwt_extended
+flask_Session
 passlib
 marshmallow
 psycopg2
 datetime
+gunicorn
