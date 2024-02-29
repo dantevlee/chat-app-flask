@@ -3,40 +3,45 @@ from flask import Flask
 from flask_smorest import Api
 from flask_cors import CORS
 from flask_socketio import SocketIO
+from dotenv import load_dotenv
 from database.db import db
 from resources.users import blp as UsersBlueprint
 from resources.messages import blp as MessagesBlueprint
 from resources.channels import blp as ChannelsBlueprint
 
 
-app = Flask(__name__, static_folder='./build', static_url_path='/')
-
+def create_app(db_url=None):
+  app = Flask(__name__, static_folder='./build', static_url_path='/')
+  load_dotenv()
   
-CORS(app, resources={r"/*": {"origins": "*"}})
-socketio = SocketIO(app, cors_allowed_origins='*')
+  CORS(app, resources={r"/*": {"origins": "*"}})
+  socketio = SocketIO(app, cors_allowed_origins='*')
   
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
-app.config['TOKEN_SECRET'] = os.getenv("TOKEN_SECRET")
-app.config["API_TITLE"] = "Chat App REST API"
-app.config["API_VERSION"] = "v1"
-app.config["OPENAPI_VERSION"] = "3.0.3"
-app.config["OPENAPI_URL_PREFIX"] = "/"
-app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
-app.config[
+  app.config["SQLALCHEMY_DATABASE_URI"] = db_url or os.getenv("DATABASE_URL")
+  app.config['TOKEN_SECRET'] = os.getenv("TOKEN_SECRET")
+  app.config["API_TITLE"] = "Chat App REST API"
+  app.config["API_VERSION"] = "v1"
+  app.config["OPENAPI_VERSION"] = "3.0.3"
+  app.config["OPENAPI_URL_PREFIX"] = "/"
+  app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
+  app.config[
         "OPENAPI_SWAGGER_UI_URL"
     ] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+  app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db.init_app(app)
-api = Api(app)
+  db.init_app(app)
+  api = Api(app)
   
-with app.app_context():
-  db.create_all()
+  with app.app_context():
+    db.create_all()
   
-api.register_blueprint(UsersBlueprint)
-api.register_blueprint(MessagesBlueprint)
-api.register_blueprint(ChannelsBlueprint)
+  api.register_blueprint(UsersBlueprint)
+  api.register_blueprint(MessagesBlueprint)
+  api.register_blueprint(ChannelsBlueprint)
   
+  return app, socketio
+  
+app, socketio = create_app()
 
 @socketio.on('connect')
 def handle_connect():
