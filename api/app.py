@@ -3,6 +3,7 @@ from flask import Flask
 from flask_smorest import Api
 from flask_cors import CORS
 from flask_socketio import SocketIO
+from dotenv import load_dotenv
 from database.db import db
 from resources.users import blp as UsersBlueprint
 from resources.messages import blp as MessagesBlueprint
@@ -11,6 +12,7 @@ from resources.channels import blp as ChannelsBlueprint
 
 def create_app(db_url=None):
   app = Flask(__name__, static_folder='./build', static_url_path='/')
+  load_dotenv()
   
   CORS(app, resources={r"/*": {"origins": "*"}})
   socketio = SocketIO(app, cors_allowed_origins='*')
