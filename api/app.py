@@ -17,7 +17,7 @@ def create_app(db_url=None):
   CORS(app, resources={r"/*": {"origins": "*"}})
   socketio = SocketIO(app, cors_allowed_origins='*')
   
-  app.config["SQLALCHEMY_DATABASE_URI"] = db_url or os.getenv("DATABASE_URL")
+  app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///data.db" or os.getenv("DATABASE_URL")
   app.config['TOKEN_SECRET'] = os.getenv("TOKEN_SECRET")
   app.config["API_TITLE"] = "Chat App REST API"
   app.config["API_VERSION"] = "v1"

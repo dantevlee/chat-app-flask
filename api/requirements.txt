@@ -11,3 +11,4 @@ marshmallow
 python-dotenv
 datetime
 gunicorn
+psycopg2
