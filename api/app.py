@@ -8,12 +8,9 @@ from database.db import db
 from resources.users import blp as UsersBlueprint
 from resources.messages import blp as MessagesBlueprint
 from resources.channels import blp as ChannelsBlueprint
-
 app = Flask(__name__, static_folder='./build', static_url_path='/')
 socketio = SocketIO(app, cors_allowed_origins='*')
-
 def create_app(db_url=None):
-  
   load_dotenv()
   
   CORS(app, resources={r"/*": {"origins": "*"}})
@@ -31,7 +28,6 @@ def create_app(db_url=None):
     ] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
   app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
   app.config["PROPAGATE_EXCEPTIONS"] = True
-
   db.init_app(app)
   api = Api(app)
   
@@ -41,20 +37,15 @@ def create_app(db_url=None):
   api.register_blueprint(UsersBlueprint)
   api.register_blueprint(MessagesBlueprint)
   api.register_blueprint(ChannelsBlueprint)
-  
-  return app, socketio
-  
-app, socketio = create_app()
+
+  if __name__ == '__main__':
+    socketio.run(app, debug=True)
+
+  return app
 
 @socketio.on('connect')
 def handle_connect():
     print('Client connected')
-
 @socketio.on('disconnect')
 def handle_disconnect():
     print('Client disconnected')
-  
-if __name__ == '__main__':
-    socketio.run(app, debug=True)
-  
-

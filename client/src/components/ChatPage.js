@@ -16,7 +16,7 @@ const ChatPage = ({ setIsLoggedIn }) => {
   const [channelMessages, setChannelMessages] = useState([]);
   const [showInput, setShowInput] = useState(false)
 
-  const socket = io.connect('http://localhost:5000/');
+  const socket = io.connect('https://chat-app-flask.onrender.com/');
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -66,7 +66,7 @@ const ChatPage = ({ setIsLoggedIn }) => {
       },
     };
     const response = await axios.get(
-      "http://localhost:5000/users/active",
+      "https://chat-app-flask.onrender.com/users/active",
       header
     );
     setUsers(response.data);
@@ -75,8 +75,8 @@ const ChatPage = ({ setIsLoggedIn }) => {
   const getMessagesAndChannels = async () => {
     try {
       const [messagesResponse, channelsResponse] = await Promise.all([
-        axios.get("http://localhost:5000/message"),
-        axios.get("http://localhost:5000/channels"),
+        axios.get("https://chat-app-flask.onrender.com/message"),
+        axios.get("https://chat-app-flask.onrender.com/channels"),
       ]);
 
       const messagesData = messagesResponse.data;
@@ -103,7 +103,7 @@ const ChatPage = ({ setIsLoggedIn }) => {
     try {
       const username = localStorage.getItem("username");
 
-      await axios.post("http://localhost:5000/logout", { username });
+      await axios.post("https://chat-app-flask.onrender.com/logout", { username });
 
       localStorage.removeItem("token");
       setIsLoggedIn(false);
@@ -129,7 +129,7 @@ const ChatPage = ({ setIsLoggedIn }) => {
 
 
     try {
-      axios.post("http://localhost:5000/message", message, {
+      axios.post("https://chat-app-flask.onrender.com/message", message, {
       headers: {
         Authorization: `${token}`
       }

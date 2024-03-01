@@ -21,7 +21,7 @@ const Register = () => {
       password: passwordInputRef.current.value,
     };
 
-    axios.post('http://localhost:5000/register', requestBody);
+    axios.post('https://chat-app-flask.onrender.com/register', requestBody);
     history('/');
   }
 

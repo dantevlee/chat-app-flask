@@ -25,7 +25,7 @@ const LoginForm = ({ setIsLoggedIn }) => {
     };
 
    try {
-  const response = await axios.post("http://localhost:5000/login", loginBody);
+  const response = await axios.post("https://chat-app-flask.onrender.com/login", loginBody);
 
   if (response.data.message === "Invalid credentials") {
     setError("Invalid credentials. Please check your username and password.");
