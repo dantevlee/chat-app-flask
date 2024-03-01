@@ -9,13 +9,14 @@ from resources.users import blp as UsersBlueprint
 from resources.messages import blp as MessagesBlueprint
 from resources.channels import blp as ChannelsBlueprint
 
+app = Flask(__name__, static_folder='./build', static_url_path='/')
+socketio = SocketIO(app, cors_allowed_origins='*')
 
 def create_app(db_url=None):
-  app = Flask(__name__, static_folder='./build', static_url_path='/')
   load_dotenv()
   
   CORS(app, resources={r"/*": {"origins": "*"}})
-  socketio = SocketIO(app, cors_allowed_origins='*')
+  
   
   app.config["SQLALCHEMY_DATABASE_URI"] = db_url or os.getenv("DATABASE_URL")
   app.config['TOKEN_SECRET'] = os.getenv("TOKEN_SECRET")
@@ -40,10 +41,11 @@ def create_app(db_url=None):
   api.register_blueprint(MessagesBlueprint)
   api.register_blueprint(ChannelsBlueprint)
   
+  if __name__ == '__main__':
+    socketio.run(app, debug=True)
+  
   return app, socketio
   
-app, socketio = create_app()
-
 @socketio.on('connect')
 def handle_connect():
     print('Client connected')
@@ -52,7 +54,6 @@ def handle_connect():
 def handle_disconnect():
     print('Client disconnected')
   
-if __name__ == '__main__':
-    socketio.run(app, debug=True)
+
   
 
