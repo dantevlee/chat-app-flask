@@ -28,6 +28,7 @@ def create_app(db_url=None):
         "OPENAPI_SWAGGER_UI_URL"
     ] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
   app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+  app.config["PROPAGATE_EXCEPTIONS"] = True
 
   db.init_app(app)
   api = Api(app)
