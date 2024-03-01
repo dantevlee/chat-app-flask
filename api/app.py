@@ -41,6 +41,9 @@ def create_app(db_url=None):
   api.register_blueprint(MessagesBlueprint)
   api.register_blueprint(ChannelsBlueprint)
   
+  if __name__ == '__main__':
+    socketio.run(app, debug=True)
+  
   return app
   
 @socketio.on('connect')
@@ -51,7 +54,6 @@ def handle_connect():
 def handle_disconnect():
     print('Client disconnected')
   
-if __name__ == '__main__':
-    socketio.run(app, debug=True)
+
   
 
